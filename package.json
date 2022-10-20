@@ -1,0 +1,26 @@
+{
+  "name": "mbmbam-wiki-script",
+  "version": "1.0.0",
+  "description": "for creating templates to upload to the fandom wiki",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Coding-Christian/mbmbam-wiki-script.git"
+  },
+  "keywords": [
+    "mbmbmam",
+    "wiki"
+  ],
+  "author": "Christian Haney",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Coding-Christian/mbmbam-wiki-script/issues"
+  },
+  "homepage": "https://github.com/Coding-Christian/mbmbam-wiki-script#readme",
+  "dependencies": {
+    "axios": "^1.1.3"
+  }
+}
