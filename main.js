@@ -1,9 +1,11 @@
 //initialization of requirements
 const { auth } = require('./config.json');
 const axios = require('axios');
+const fs = require('fs');
 const apiURL = 'https://api.spotify.com/v1/shows/308BQUUnIkoH2UAXJCAt0g';
+const pcURL = 'https://maximumfun.org/episodes/my-brother-my-brother-and-me/';
 const extraEpisodes = 12; //extra clips on Spotify that aren't main episodes
-let apiData = null;
+let apiData = [];
 let webData = '';
 let token = '';
 
@@ -26,7 +28,7 @@ const getLinks = data => {
   return [result[0][1], result[1] ? result[1][1] : ''];
 };
 
-const formatLength = ms => Math.floor(ms / 60000) + ':' + Math.floor((ms % 60000) / 1000);
+const formatLength = ms => `${Math.floor(ms / 60000)}:${Math.floor((ms % 60000) / 1000)}`;
 
 const formatDate = string => {
   const date = string.split('-');
@@ -55,45 +57,24 @@ const formatName = string => {
 };
 
 const processData = () => {
-  let previous, episode, next;
-  if (apiData.length === 3) {
-    next = apiData[0];
-    episode = apiData[1];
-    previous = apiData[2];
-  } else if (apiData.length === 2) {
-    episode = apiData[0];
-    previous = apiData[1];
-  } else {
-    throw new Error('ERROR: wrong number of episodes found on Spotify');
-  }
-
+  const previous = apiData.pop();
+  const episode = apiData.pop();
+  const next = apiData.pop();
   const paragraphs = getParagraphs(episode);
   const links = getLinks(webData);
 
-  const result = `{{PodcastInfobox
-| Image = Mbmbam 506 cover with portraits.jpg
-| Length = ${formatLength(episode.duration_ms)}
-| Date = ${formatDate(episode.release_date)}
-| Previous = ${previous.name.replace('MBMBaM', 'Episode')}
-| Description = ${paragraphs[0]}
-| Talkingpoints = ${paragraphs[1].replace('Suggested talking points: ', '')}\n${
-    paragraphs[2] ? '\n' + paragraphs[2] : ''
-  }
-| mp3link = ${links[0]}
-| transcript = ${links[1]}
-| Next = ${next?.name.replace('MBMBaM', 'Episode') || ''}
-}}
-== Outline ==
-{{{EpisodeOutline|}}}
-
-== Quotes ==
-{{{EpisodeQuotes|}}}
-
-== Trivia ==
-{{{EpisodeTrivia|}}}
-
-== Deep Cuts ==
-{{{EpisodeCuts|}}}`;
+  const result = fs
+    .readFileSync('template.txt')
+    .toString()
+    .replace('${len}', formatLength(episode.duration_ms))
+    .replace('${date}', formatDate(episode.release_date))
+    .replace('${prev}', previous.name.replace('MBMBaM', 'Episode'))
+    .replace('${desc}', paragraphs[0])
+    .replace('${tp}', paragraphs[1].replace('Suggested talking points: ', ''))
+    .replace('${tp2}', paragraphs[2] ? '\n\n' + paragraphs[2] : '')
+    .replace('${mp3}', links[0])
+    .replace('${ts}', links[1])
+    .replace('${next}', next?.name.replace('MBMBaM', 'Episode') || '');
 
   console.log(result);
 };
@@ -135,29 +116,27 @@ function script() {
                 [episodeNum + 1, episodeNum, episodeNum - 1].includes(getEpNum(episode.name))
               );
 
-              const name = formatName(apiData[apiData.length - 2].name);
-              // console.log('attempting to find maximum fun page...');
-              // console.log('https://maximumfun.org/episodes/my-brother-my-brother-and-me/' + name);
+              const showURL = pcUrl + formatName(apiData[apiData.length - 2]?.name);
 
               axios
-                .get('https://maximumfun.org/episodes/my-brother-my-brother-and-me/' + name)
+                .get(showURL)
                 .then(res => {
                   webData = res.data;
-                  if (apiData && webData) {
+                  if (apiData.length && webData) {
                     processData();
                   }
                 })
                 .catch(err => {
-                  throw new Error(err);
+                  throw new Error(`${showURL} not found: ${err}`);
                 });
             });
         })
         .catch(err => {
-          throw new Error(err);
+          throw new Error('Find show on Spotify failed: ' + err);
         });
     })
     .catch(err => {
-      throw new Error(err);
+      throw new Error('Failed to authenticate with Spotify' + err);
     });
 }
 

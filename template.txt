@@ -1,0 +1,22 @@
+{{PodcastInfobox
+| Image = Mbmbam 506 cover with portraits.jpg
+| Length = ${len}
+| Date = ${date}
+| Previous = ${prev}
+| Description = ${desc}
+| Talkingpoints = ${tp}${tp2}
+| mp3link = ${mp3}
+| transcript = ${ts}
+| Next = ${next}
+}}
+== Outline ==
+{{{EpisodeOutline|}}}
+
+== Quotes ==
+{{{EpisodeQuotes|}}}
+
+== Trivia ==
+{{{EpisodeTrivia|}}}
+
+== Deep Cuts ==
+{{{EpisodeCuts|}}}
