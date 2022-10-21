@@ -7,8 +7,5 @@ git clone https://github.com/Coding-Christian/mbmbam-wiki-script.git
 cd mbmbam-wiki-script
 npm install
 
-node main.js "AUTH" "NAME"
+node main.js [episode_number]
 ```
-
-- AUTH: encoded string based on API tokens
-- NAME: page url on Maximum Fun website
