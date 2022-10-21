@@ -1,7 +1,9 @@
 //initialization of requirements
-const { auth } = require('./config.json');
-const axios = require('axios');
-const fs = require('fs');
+import axios from 'axios';
+import fs from 'fs';
+import config from './config.js';
+import tagHandlers from './template/tagHandlers.js';
+const template = fs.readFileSync('./template/content.txt');
 const apiURL = 'https://api.spotify.com/v1/shows/308BQUUnIkoH2UAXJCAt0g';
 const pcURL = 'https://maximumfun.org/episodes/my-brother-my-brother-and-me/';
 const extraEpisodes = 12; //extra clips on Spotify that aren't main episodes
@@ -12,85 +14,18 @@ let token = '';
 //utility functions
 const getEpNum = name => Number(name.split(':')[0].replace(/\D/g, ''));
 
-getParagraphs = data => {
-  return data.html_description.match(/\<p\>(.+?)\<\/p\>/g).map(str =>
-    str
-      .replace(/\<\/*p\>/g, '')
-      .replace(/&#39;/g, "'")
-      .replace('’', "'")
-  );
-};
-
-const getLinks = data => {
-  const result = [
-    ...data.match(/id="single-episode-buttons"\>[\s\S]+?\<div/)[0]?.matchAll(/\<a[^\>]+href="([^"]+?)"/g)
-  ];
-  return [result[0][1], result[1] ? result[1][1] : ''];
-};
-
-const formatLength = ms => `${Math.floor(ms / 60000)}:${Math.floor((ms % 60000) / 1000)}`;
-
-const formatDate = string => {
-  const date = string.split('-');
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ];
-  return `${months[date[1] - 1]} ${date[2]}, ${date[0]}`;
-};
-
-const formatName = string => {
-  return string
-    .toLowerCase()
-    .replace(/[’':,.-]/g, '')
-    .replace(/\s+/g, '-');
-};
-
-const processData = () => {
-  const previous = apiData.pop();
-  const episode = apiData.pop();
-  const next = apiData.pop();
-  const paragraphs = getParagraphs(episode);
-  const links = getLinks(webData);
-
-  const result = fs
-    .readFileSync('template.txt')
-    .toString()
-    .replace('${len}', formatLength(episode.duration_ms))
-    .replace('${date}', formatDate(episode.release_date))
-    .replace('${prev}', previous.name.replace('MBMBaM', 'Episode'))
-    .replace('${desc}', paragraphs[0])
-    .replace('${tp}', paragraphs[1].replace('Suggested talking points: ', ''))
-    .replace('${tp2}', paragraphs[2] ? '\n\n' + paragraphs[2] : '')
-    .replace('${mp3}', links[0])
-    .replace('${ts}', links[1])
-    .replace('${next}', next?.name.replace('MBMBaM', 'Episode') || '');
-
-  console.log(result);
-};
-
 //script
 function script() {
   const episodeNum = Number(process.argv[2]);
 
-  if (!auth || !episodeNum) {
+  if (!config.auth || !episodeNum || !template || !tagHandlers) {
     throw new Error(`Error: bad arguements (${episodeNum})`);
   }
 
   axios
     .post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
       headers: {
-        Authorization: 'Basic ' + auth
+        Authorization: 'Basic ' + config.auth
       }
     })
     .then(res => {
@@ -116,18 +51,34 @@ function script() {
                 [episodeNum + 1, episodeNum, episodeNum - 1].includes(getEpNum(episode.name))
               );
 
-              const showURL = pcUrl + formatName(apiData[apiData.length - 2]?.name);
+              const name = apiData[apiData.length - 2]?.name
+                .toLowerCase()
+                .replace(/[’':,.-]/g, '')
+                .replace(/\s+/g, '-');
 
               axios
-                .get(showURL)
+                .get(pcURL + name)
                 .then(res => {
                   webData = res.data;
                   if (apiData.length && webData) {
-                    processData();
+                    const data = {
+                      webData,
+                      previous: apiData.pop(),
+                      episode: apiData.pop(),
+                      next: apiData.pop()
+                    };
+
+                    let result = template.toString();
+
+                    Object.keys(tagHandlers).forEach(tag => {
+                      result = result.replace(tag, tagHandlers[tag](data));
+                    });
+
+                    console.log(result);
                   }
                 })
                 .catch(err => {
-                  throw new Error(`${showURL} not found: ${err}`);
+                  throw new Error(`${pcURL + name} not found: ${err}`);
                 });
             });
         })
@@ -140,4 +91,5 @@ function script() {
     });
 }
 
+//execute
 script();
