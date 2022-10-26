@@ -6,10 +6,11 @@ for creating templates to upload to the Fandom wiki
 
 # Requirements
 - WSL 2 `ubuntu 18.04`
-- Node `16.1.0`
+- Node `16.9.0`
 
 # Dependencies
 - `axios`
+- `discord.js`
 
 # Usage
 ```shell
@@ -24,5 +25,6 @@ node main.js [episode_number] | clip.exe
 # Docs
 - Spotify API: https://developer.spotify.com/documentation/web-api/reference/#/
 - Axios: https://axios-http.com/docs/intro
+- Discord.js: https://discordjs.guide/
 - MBMBaM Wiki: https://mbmbam.fandom.com/wiki/My_Brother,_My_Brother_and_Me_Wiki
 - Max Fun Page: https://maximumfun.org/podcasts/my-brother-my-brother-and-me/
