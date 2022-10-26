@@ -7,6 +7,7 @@ for creating templates to upload to the Fandom wiki
 # Requirements
 - WSL 2 `ubuntu 18.04`
 - Node `16.9.0`
+- A [Discord bot](https://discordjs.guide/preparations/setting-up-a-bot-application.html) with proper permissions invited to any required servers
 
 # Dependencies
 - `axios`
@@ -14,12 +15,13 @@ for creating templates to upload to the Fandom wiki
 
 # Usage
 ```shell
-//in WSL terminal
 git clone https://github.com/Coding-Christian/mbmbam-wiki-script.git
 cd mbmbam-wiki-script
-npm install
+mv config.example.js config.js
 
-node main.js [episode_number] | clip.exe
+npm install
+//edit config.js to add required data
+node main
 ```
 
 # Docs
