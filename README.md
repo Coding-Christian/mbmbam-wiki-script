@@ -7,7 +7,8 @@ for creating templates to upload to the Fandom wiki
 # Requirements
 - WSL 2 `ubuntu 18.04`
 - Node `16.9.0`
-- A [Discord bot](https://discordjs.guide/preparations/setting-up-a-bot-application.html) with proper permissions invited to any required servers
+- A [Discord bot](https://discordjs.guide/preparations/setting-up-a-bot-application.html) with proper permissions invited to the desired servers
+- A [Spotify app](https://developer.spotify.com/dashboard/applications) for show search results
 
 # Dependencies
 - `axios`
@@ -23,6 +24,8 @@ npm install
 //edit config.js to add required data
 node main
 ```
+
+In Discord, type `!mbmbam` followed by a space then the episode number to get the template for that episode's wiki page.
 
 # Docs
 - Spotify API: https://developer.spotify.com/documentation/web-api/reference/#/
