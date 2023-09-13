@@ -1,9 +1,14 @@
 // Utility functions for use in this file
 const format = string => {
+  if (!string) {
+    return '';
+  }
   return string
-    .replace(/\<\/*p\>/g, '')
-    .replace(/&#39;/g, "'")
-    .replace('’', "'");
+    .replace(/<\/*p>/g, '')
+    .replace(/&#39;/g, '\'')
+    .replace('’', '\'')
+    .replace('Suggested talking points: ', '')
+    .trim();
 };
 
 // Data Processing Functions for Tags in Template
@@ -47,33 +52,34 @@ const $date$ = data => {
 };
 
 const $prev$ = data => {
-  return data.previous.name.replace('MBMBaM', 'Episode');
+  return data.previous ? data.previous.name.replace('MBMBaM', 'Episode') : '';
 };
 
 const $desc$ = data => {
-  return format(data.episode.html_description.match(/\<p\>(.+?)\<\/p\>/g)[0]);
+  return format(data.episode.html_description.match(/<p>(.+?)<\/p>/g)[0]);
 };
 
 const $tp$ = data => {
-  const paragraphs = data.episode.html_description.match(/\<p\>(.+?)\<\/p\>/g);
-  return (
-    format(paragraphs[1]).replace('Suggested talking points: ', '') +
-    (paragraphs[2] ? '\n\n' + format(paragraphs[2]) : '')
-  );
+  const paragraphs = data.episode.html_description.match(/<p>(.+?)<\/p>/g);
+  let result = format(paragraphs[1]);
+  if (paragraphs[2]) {
+    result += `${result ? '\n\n' : ''}${format(paragraphs[2])}`;
+  }
+  return result;
 };
 
 const $mp3$ = data => {
-  const result = [
-    ...data.webData.match(/id="single-episode-buttons"\>[\s\S]+?\<div/)[0]?.matchAll(/\<a[^\>]+href="([^"]+?)"/g)
-  ];
-  return result[0][1];
+  const { webData } = data;
+  return webData.length ? [
+    ...webData.match(/id="single-episode-buttons">[\s\S]+?<div/)[0].matchAll(/<a[^>]+href="([^"]+?)"/g)
+  ][0][1] : '';
 };
 
 const $ts$ = data => {
-  const result = [
-    ...data.webData.match(/id="single-episode-buttons"\>[\s\S]+?\<div/)[0]?.matchAll(/\<a[^\>]+href="([^"]+?)"/g)
-  ];
-  return result[1] ? result[1][1] : '';
+  const { webData } = data;
+  return webData.length ? [
+    ...webData.match(/id="single-episode-buttons">[\s\S]+?<div/)[0].matchAll(/<a[^>]+href="([^"]+?)"/g)
+  ][1][1] : '';
 };
 
 const $next$ = data => {
