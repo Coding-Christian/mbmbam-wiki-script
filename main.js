@@ -3,13 +3,13 @@ import { Client, GatewayIntentBits } from 'discord.js';
 import axios from 'axios';
 import fs from 'fs';
 import config from './config.js';
-import tagHandlers from './template/tagHandlers.js';
+import templateHandlers from './template.js';
 //helpers
-const template = fs.readFileSync('./template/content.txt');
+const template = fs.readFileSync('./template.txt');
 const reply = (message, data) => {
   let result = template.toString();
-  Object.keys(tagHandlers).forEach(tag => {
-    result = result.replace(tag, tagHandlers[tag](data));
+  Object.keys(templateHandlers).forEach(tag => {
+    result = result.replace(tag, templateHandlers[tag](data));
   });
   console.log(`- completed at ${(new Date(Date.now())).toString()}`);
   console.log(result);
@@ -40,7 +40,7 @@ function script(message, episodeNum) {
   if (!episodeNum) {
     throw new Error(`Error: bad arguement (${episodeNum})`);
   }
-  if (!template || !tagHandlers) {
+  if (!template || !templateHandlers) {
     throw new Error('Error: missing dependency');
   }
   if (!config.clientId || !config.clientSecret || !config.token || !config.apiURL || !config.castURL) {
