@@ -1,13 +1,13 @@
 import axios from 'axios';
 import getEpisodeNums from './getEpisodeNums.js';
 import formatMessage from './formatMessage.js';
-import config from '../../config.js';
+import { config } from '../config.js';
 
 export default (message, episodeNum) => {
   if (!episodeNum) {
     throw new Error(`Error: bad arguement (${episodeNum})`);
   }
-  if (!config.clientId || !config.clientSecret || !config.token || !config.apiURL || !config.castURL) {
+  if (!config.clientId || !config.clientSecret || !config.apiURL || !config.castURL) {
     throw new Error(`Error: bad config (${JSON.stringify(Object.keys(config))})`);
   }
 

@@ -1,7 +1,11 @@
 //initialization of requirements
 import { Client, GatewayIntentBits } from 'discord.js';
 import mbmbamWikiScript from './mbmbamWikiScript/mbmbamWikiScript.js';
-import config from '../config.js';
+import { token } from './config.js';
+
+if (!token) {
+  throw new Error('Error: missing Discord token');
+}
 
 //connect to Discord
 const client = new Client({
@@ -37,4 +41,4 @@ client.on('messageCreate', message => {
   }
 });
 
-client.login(config.token);
+client.login(token);

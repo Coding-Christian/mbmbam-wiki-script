@@ -18,10 +18,10 @@ for creating templates to upload to the Fandom wiki
 ```shell
 git clone https://github.com/Coding-Christian/mbmbam-wiki-script.git
 cd mbmbam-wiki-script
-mv config.example.js config.js
+mv src/config.example.js src/config.js
 
 npm install
-//edit config.js to add required data
+//edit src/config.js to add required data
 node src/main
 ```
 
