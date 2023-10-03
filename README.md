@@ -22,7 +22,7 @@ mv config.example.js config.js
 
 npm install
 //edit config.js to add required data
-node main
+node src/main
 ```
 
 In Discord, type `!mbmbam` followed by a space then the episode number to get the template for that episode's wiki page.
