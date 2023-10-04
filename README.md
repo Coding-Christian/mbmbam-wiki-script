@@ -5,7 +5,7 @@ for creating templates to upload to the Fandom wiki
 ![image](https://user-images.githubusercontent.com/54188971/197305368-6e957a30-f4fb-435e-a5cd-82e06ab20ec7.png)
 
 # Requirements
-- WSL 2 `ubuntu 18.04`
+- WSL 2 `ubuntu 22.04`
 - Node `16.9.0`
 - A [Discord bot](https://discordjs.guide/preparations/setting-up-a-bot-application.html) with proper permissions invited to the desired servers
 - A [Spotify app](https://developer.spotify.com/dashboard/applications) for show search results
@@ -15,7 +15,7 @@ for creating templates to upload to the Fandom wiki
 - `discord.js`
 
 # Usage
-```shell
+```sh
 git clone https://github.com/Coding-Christian/mbmbam-wiki-script.git
 cd mbmbam-wiki-script
 mv src/config.example.js src/config.js #edit src/config.js to add required data
@@ -24,7 +24,7 @@ npm install
 node src/main
 ```
 
-In Discord, type `!mbmbam` followed by a space then the episode number to get the template for that episode's wiki page.
+In Discord, type `/mbmbam` followed by a space then the episode number to get the template for that episode's wiki page.
 
 # Docs
 - Spotify API: https://developer.spotify.com/documentation/web-api/reference/#/
