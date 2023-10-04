@@ -1,14 +1,17 @@
 import axios from 'axios';
 import getEpisodeNums from './getEpisodeNums.js';
 import formatMessage from './formatMessage.js';
-import { config } from '../config.js';
+import { spotifyConfig, castURL } from '../../config.js';
 
-export default (message, episodeNum) => {
+export default (interaction, episodeNum) => {
   if (!episodeNum) {
-    throw new Error(`Error: bad arguement (${episodeNum})`);
+    throw new Error(`Error: bad episode number (${episodeNum})`);
   }
-  if (!config.clientId || !config.clientSecret || !config.apiURL || !config.castURL) {
-    throw new Error(`Error: bad config (${JSON.stringify(Object.keys(config))})`);
+  if (!castURL) {
+    throw new Error(`Error: bad MaxFun URL (${castURL})`);
+  }
+  if (!spotifyConfig.clientId || !spotifyConfig.clientSecret || !spotifyConfig.apiURL) {
+    throw new Error(`Error: bad Spotify config (${JSON.stringify(Object.keys(spotifyConfig))})`);
   }
 
   console.log('- parameters verified');
@@ -16,7 +19,7 @@ export default (message, episodeNum) => {
   axios
     .post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
       headers: {
-        Authorization: 'Basic ' + btoa(unescape(encodeURIComponent(`${config.clientId}:${config.clientSecret}`)))
+        Authorization: 'Basic ' + btoa(unescape(encodeURIComponent(`${spotifyConfig.clientId}:${spotifyConfig.clientSecret}`)))
       }
     })
     .then(res => {
@@ -25,7 +28,7 @@ export default (message, episodeNum) => {
       const token = res.data.access_token;
 
       axios
-        .get(config.apiURL + '/episodes?market=US&limit=1', {
+        .get(spotifyConfig.apiURL + '/episodes?market=US&limit=1', {
           headers: {
             Authorization: 'Bearer ' + token
           }
@@ -38,7 +41,7 @@ export default (message, episodeNum) => {
           const extraEpisodes = (res.data.total - lastEpNum) * 2;
 
           axios
-            .get(`${config.apiURL}/episodes?market=US&limit=${extraEpisodes}&offset=${offset > 0 ? offset : 0}`, {
+            .get(`${spotifyConfig.apiURL}/episodes?market=US&limit=${extraEpisodes}&offset=${offset > 0 ? offset : 0}`, {
               headers: {
                 Authorization: 'Bearer ' + token
               }
@@ -58,8 +61,8 @@ export default (message, episodeNum) => {
                 .replace(/\s+/g, '-');
 
               axios
-                .get(config.castURL + name)
-                .then(res => {
+                .get(castURL + name)
+                .then(async res => {
                   console.log('- retrieved maximumfun.org page');
                   const formattedMessage = formatMessage({
                     webData: res.data,
@@ -67,9 +70,9 @@ export default (message, episodeNum) => {
                     episode: apiData.pop(),
                     next: apiData.pop()
                   });
-                  message.reply('```' + formattedMessage + '```');
+                  await interaction.reply({ content: '```' + formattedMessage + '```', ephemeral: true });
                 })
-                .catch(err => {
+                .catch(async err => {
                   console.log(`- unable to retrieve maximumfun.org page (${err})`);
                   const formattedMessage = formatMessage({
                     webData: '',
@@ -77,7 +80,7 @@ export default (message, episodeNum) => {
                     episode: apiData.pop(),
                     next: apiData.pop()
                   });
-                  message.reply('```' + formattedMessage + '```');
+                  await interaction.reply({ content: '```' + formattedMessage + '```', ephemeral: true });
                 });
             });
         })

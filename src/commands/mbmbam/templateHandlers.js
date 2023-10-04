@@ -70,16 +70,28 @@ const $tp$ = data => {
 
 const $mp3$ = data => {
   const { webData } = data;
-  return webData.length ? [
-    ...webData.match(/id="single-episode-buttons">[\s\S]+?<div/)[0].matchAll(/<a[^>]+href="([^"]+?)"/g)
-  ][0][1] : '';
+  if (webData.length) {
+    const matches = [
+      ...webData.match(/id="single-episode-buttons">[\s\S]+?<div/)[0].matchAll(/<a[^>]+href="([^"]+?)"/g)
+    ];
+    if (matches[0]) {
+      return matches[0][1];
+    }
+  }
+  return '';
 };
 
 const $ts$ = data => {
   const { webData } = data;
-  return webData.length ? [
-    ...webData.match(/id="single-episode-buttons">[\s\S]+?<div/)[0].matchAll(/<a[^>]+href="([^"]+?)"/g)
-  ][1][1] : '';
+  if (webData.length) {
+    const matches = [
+      ...webData.match(/id="single-episode-buttons">[\s\S]+?<div/)[0].matchAll(/<a[^>]+href="([^"]+?)"/g)
+    ];
+    if (matches[1]) {
+      return matches[1][1];
+    }
+  }
+  return '';
 };
 
 const $next$ = data => {
