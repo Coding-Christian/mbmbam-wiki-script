@@ -14,7 +14,6 @@ export default (data) => {
   Object.keys(templateHandlers).forEach(tag => {
     result = result.replace(tag, templateHandlers[tag](data));
   });
-  console.log(`- completed at ${(new Date(Date.now())).toString()}`);
   if (logResult) {
     console.log(result);
   }

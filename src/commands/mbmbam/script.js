@@ -1,14 +1,12 @@
 import axios from 'axios';
 import getEpisodeNums from './getEpisodeNums.js';
+import formatCastURL from './formatCastURL.js';
 import formatMessage from './formatMessage.js';
-import { spotifyConfig, castURL } from '../../config.js';
+import { spotifyConfig } from '../../config.js';
 
 export default (interaction, episodeNum) => {
   if (!episodeNum) {
     throw new Error(`Error: bad episode number (${episodeNum})`);
-  }
-  if (!castURL) {
-    throw new Error(`Error: bad MaxFun URL (${castURL})`);
   }
   if (!spotifyConfig.clientId || !spotifyConfig.clientSecret || !spotifyConfig.apiURL) {
     throw new Error(`Error: bad Spotify config (${JSON.stringify(Object.keys(spotifyConfig))})`);
@@ -54,33 +52,32 @@ export default (interaction, episodeNum) => {
                 return getEpisodeNums(episodeNum).includes(currentEpNum);
               });
 
-              const name = apiData[apiData.length - 2]?.name
-                .toLowerCase()
-                .replace(/[’':,.]/g, '')
-                .replace(' - ', '-')
-                .replace(/\s+/g, '-');
+              const { name } = apiData[apiData.length - 2];
+              console.log('- ' + name);
+              const url = formatCastURL(name, episodeNum);
+              console.log(`- GET: ${url}`);
+              let webData;
 
               axios
-                .get(castURL + name)
-                .then(async res => {
+                .get(url)
+                .then(res => {
                   console.log('- retrieved maximumfun.org page');
-                  const formattedMessage = formatMessage({
-                    webData: res.data,
-                    previous: (episodeNum === 1) ? undefined : apiData.pop(),
-                    episode: apiData.pop(),
-                    next: apiData.pop()
-                  });
-                  await interaction.reply({ content: '```' + formattedMessage + '```', ephemeral: true });
+                  webData = res.data;
                 })
-                .catch(async err => {
+                .catch(err => {
                   console.log(`- unable to retrieve maximumfun.org page (${err})`);
+                  webData = '';
+                })
+                .finally(async () => {
                   const formattedMessage = formatMessage({
-                    webData: '',
+                    webData,
                     previous: (episodeNum === 1) ? undefined : apiData.pop(),
                     episode: apiData.pop(),
                     next: apiData.pop()
                   });
+                  console.log('- replying to slash command');
                   await interaction.reply({ content: '```' + formattedMessage + '```', ephemeral: true });
+                  console.log(`- completed at ${(new Date(Date.now())).toString()}`);
                 });
             });
         })

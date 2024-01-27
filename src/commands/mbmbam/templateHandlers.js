@@ -5,6 +5,7 @@ const format = string => {
   }
   return string
     .replace(/<\/*p>/g, '')
+    .replace(/<br\/>/g, '')
     .replace(/&#39;/g, '\'')
     .replace('’', '\'')
     .replace('Suggested talking points: ', '')
